@@ -1,23 +1,27 @@
 export async function withEffects(it, handler) {
-    let n = await it.next();
-    while (!n.done) {
-        try {
-            n = await it.next(await handler(n.value));
-        } catch (e) {
-            n = await it.throw(e);
+    let result;
+    try {
+        result = await it.next();
+        while (result.done === false) {
+            const resumeWith = await handler(result.value);
+            result = await it.next(resumeWith);
         }
+    } catch (e) {
+        result = await it.throw(e);
     }
-    return n.value;
+    return result.value;
 }
 
 export function withEffectsSync(it, handler) {
-    let n = it.next();
-    while (!n.done) {
-        try {
-            n = it.next(handler(n.value));
-        } catch (e) {
-            n = it.throw(e);
+    let result;
+    try {
+        result = it.next();
+        while (result.done === false) {
+            const resumeWith = handler(result.value);
+            result = it.next(handler(resumeWith));
         }
+    } catch (e) {
+        result = it.throw(e);
     }
-    return n.value;
+    return result.value;
 }

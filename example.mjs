@@ -1,12 +1,4 @@
-# with-effects
-
-> Simple wrapper for algebraic effects using generators.
-
-
-## Example:
-
-```
-import { withEffects } from 'with-effects';
+import { withEffects } from './index.mjs';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'process';
 const rl = readline.createInterface({ input, output });
@@ -31,4 +23,3 @@ const greeting = await withEffects(
 )
 
 console.log(greeting);
-```
