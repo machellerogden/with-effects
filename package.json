@@ -2,6 +2,10 @@
   "name": "with-effects",
   "version": "0.0.1",
   "description": "Simple wrapper for algebraic effects using generators.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/machellerogden/with-effects.git"
+  },
   "type": "module",
   "main": "index.mjs",
   "scripts": {
