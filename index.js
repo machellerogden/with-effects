@@ -18,7 +18,7 @@ export function withEffectsSync(it, handler) {
         result = it.next();
         while (result.done === false) {
             const resumeWith = handler(result.value);
-            result = it.next(handler(resumeWith));
+            result = it.next(resumeWith);
         }
     } catch (e) {
         result = it.throw(e);
