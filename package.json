@@ -1,6 +1,6 @@
 {
   "name": "with-effects",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Simple wrapper for algebraic effects using generators.",
   "repository": {
     "type": "git",
