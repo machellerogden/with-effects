@@ -7,9 +7,6 @@
 
 ```
 import { withEffects } from 'with-effects';
-import * as readline from 'node:readline/promises';
-import { stdin as input, stdout as output } from 'process';
-const rl = readline.createInterface({ input, output });
 
 function* formatName(firstName, lastName) {
     if (firstName == null) firstName = yield 'first_name_missing';
@@ -23,12 +20,12 @@ function* greet(firstName, lastName) {
 }
 
 const greeting = await withEffects(
-    greet(null, 'Smith'),
+    greet(null, 'Voss'),
     effect => {
-        if (effect === 'first_name_missing') return rl.question('First Name: ');
-        if (effect === 'last_name_missing') return rl.question('Last Name: ');
+        if (effect === 'first_name_missing') return Promise.resolve('Baba');
+        if (effect === 'last_name_missing') return Promise.resolve('Voss');
     }
-)
+);
 
 console.log(greeting);
 ```

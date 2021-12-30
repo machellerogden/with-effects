@@ -1,4 +1,4 @@
-import { withEffects } from './index.mjs';
+import { withEffects } from './index.js';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'process';
 const rl = readline.createInterface({ input, output });
@@ -20,6 +20,6 @@ const greeting = await withEffects(
         if (effect === 'first_name_missing') return rl.question('First Name: ');
         if (effect === 'last_name_missing') return rl.question('Last Name: ');
     }
-)
+);
 
 console.log(greeting);
