@@ -1,6 +1,6 @@
 {
   "name": "with-effects",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Simple wrapper for algebraic effects using generators.",
   "type": "module",
   "main": "index.mjs",
