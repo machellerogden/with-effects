@@ -1,5 +1,5 @@
 import test from 'ava';
-import { withEffects, withEffectsSync } from './index.js';
+import { withEffects, withEffectsSync, always, alwaysSync } from './index.js';
 
 test('#withEffects - happy path - basic example', async t => {
 
@@ -95,6 +95,27 @@ test('#withEffects - error handling - error thrown in handler', async t => {
 
 });
 
+test('#withEffects - happy path - basic example - always', async t => {
+
+    function* greet(firstName, lastName) {
+        if (firstName == null) firstName = yield 'first_name_missing';
+        if (lastName == null) lastName = yield 'last_name_missing';
+        return `Hello, ${firstName} ${lastName}`;
+    }
+
+    t.is(await withEffects(
+        always(
+            greet(null, null),
+            new Map([['first_name_missing', Promise.resolve('Toodle')]])
+        ),
+        effect => {
+            if (effect === 'first_name_missing') return Promise.resolve('Beebop');
+            if (effect === 'last_name_missing') return Promise.resolve('Deedoo');
+        }
+    ), 'Hello, Toodle Deedoo');
+
+});
+
 test('#withEffectsSync - happy path - basic example', t => {
 
     function* greet(firstName, lastName) {
@@ -149,6 +170,27 @@ test('#withEffectsSync - happy path - effect delegation', t => {
             if (effect === 'last_name_missing') return 'Jun';
         }
     ), 'Hello, T. Jun');
+});
+
+test('#withEffectsSync - happy path - basic example - alwaysSync', async t => {
+
+    function* greet(firstName, lastName) {
+        if (firstName == null) firstName = yield 'first_name_missing';
+        if (lastName == null) lastName = yield 'last_name_missing';
+        return `Hello, ${firstName} ${lastName}`;
+    }
+
+    t.is(withEffectsSync(
+        alwaysSync(
+            greet(null, null),
+            new Map([['first_name_missing', 'Toodle']])
+        ),
+        effect => {
+            if (effect === 'first_name_missing') return 'Beebop';
+            if (effect === 'last_name_missing') return 'Deedoo';
+        }
+    ), 'Hello, Toodle Deedoo');
+
 });
 
 test('#withEffectsSync - error handling - error thrown in iterator', t => {
