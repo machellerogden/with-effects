@@ -26,36 +26,43 @@ export function withEffectsSync(it, handler) {
     return result.value;
 }
 
-export async function* always(it, bindings) {
-    let result;
-    try {
-        result = await it.next();
-        while (result.done === false) {
-            if (bindings.has(result.value)) {
-                result = await it.next(await bindings.get(result.value));
-            } else {
-                result = await it.next(yield result.value);
+export function always(gen, bindings) {
+    async function* g(...args) {
+        const it = gen(...args);
+        let result;
+        try {
+            result = await it.next();
+            while (result.done === false) {
+                if (bindings.has(result.value)) {
+                    result = await it.next(await bindings.get(result.value));
+                } else {
+                    result = await it.next(yield result.value);
+                }
             }
+        } catch (e) {
+            result = await it.throw(e);
         }
-    } catch (e) {
-        result = await it.throw(e);
+        return result.value;
     }
-    return result.value;
+    return g;
 }
-
-export function* alwaysSync(it, bindings) {
-    let result;
-    try {
-        result = it.next();
-        while (result.done === false) {
-            if (bindings.has(result.value)) {
-                result = it.next(bindings.get(result.value));
-            } else {
-                result = it.next(yield result.value);
+export function alwaysSync(gen, bindings) {
+    function* g(...args) {
+        const it = gen(...args);
+        let result;
+        try {
+            result = it.next();
+            while (result.done === false) {
+                if (bindings.has(result.value)) {
+                    result = it.next(bindings.get(result.value));
+                } else {
+                    result = it.next(yield result.value);
+                }
             }
+        } catch (e) {
+            result = it.throw(e);
         }
-    } catch (e) {
-        result = it.throw(e);
+        return result.value;
     }
-    return result.value;
+    return g;
 }

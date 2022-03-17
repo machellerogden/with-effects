@@ -103,16 +103,28 @@ test('#withEffects - happy path - basic example - always', async t => {
         return `Hello, ${firstName} ${lastName}`;
     }
 
+    const greetWithToodle = always(
+        greet,
+        new Map([
+            ['first_name_missing', Promise.resolve('Toodle')]
+        ])
+    );
+
     t.is(await withEffects(
-        always(
-            greet(null, null),
-            new Map([['first_name_missing', Promise.resolve('Toodle')]])
-        ),
+        greetWithToodle(null, null),
         effect => {
             if (effect === 'first_name_missing') return Promise.resolve('Beebop');
             if (effect === 'last_name_missing') return Promise.resolve('Deedoo');
         }
     ), 'Hello, Toodle Deedoo');
+
+    t.is(await withEffects(
+        greet(null, null),
+        effect => {
+            if (effect === 'first_name_missing') return Promise.resolve('Beebop');
+            if (effect === 'last_name_missing') return Promise.resolve('Deedoo');
+        }
+    ), 'Hello, Beebop Deedoo');
 
 });
 
@@ -179,12 +191,13 @@ test('#withEffectsSync - happy path - basic example - alwaysSync', async t => {
         if (lastName == null) lastName = yield 'last_name_missing';
         return `Hello, ${firstName} ${lastName}`;
     }
+    const greetWithToodle = alwaysSync(
+        greet,
+        new Map([['first_name_missing', 'Toodle']])
+    );
 
     t.is(withEffectsSync(
-        alwaysSync(
-            greet(null, null),
-            new Map([['first_name_missing', 'Toodle']])
-        ),
+        greetWithToodle(null, null),
         effect => {
             if (effect === 'first_name_missing') return 'Beebop';
             if (effect === 'last_name_missing') return 'Deedoo';
