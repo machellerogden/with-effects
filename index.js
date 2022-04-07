@@ -1,9 +1,21 @@
+'use strict';
+
+const applyHandler = (handler, value) => {
+    if (typeof handler === 'function') return handler(value);
+    const rh = handler instanceof Map
+        ? handler.get(value)
+        : handler?.[value];
+    return typeof rh === 'function'
+        ? rh(value)
+        : rh;
+}
+
 export async function withEffects(it, handler) {
     let result;
     try {
         result = await it.next();
         while (result.done === false) {
-            const resumeWith = await handler(result.value);
+            const resumeWith = await applyHandler(handler, result.value);
             result = await it.next(resumeWith);
         }
     } catch (e) {
@@ -27,7 +39,7 @@ export function withEffectsSync(it, handler) {
     try {
         result = it.next();
         while (result.done === false) {
-            const resumeWith = handler(result.value);
+            const resumeWith = applyHandler(handler, result.value);
             result = it.next(resumeWith);
         }
     } catch (e) {
@@ -53,9 +65,7 @@ export function bind(gen, bindings) {
         try {
             result = await it.next();
             while (result.done === false) {
-                let binding = typeof bindings === 'function' ? bindings(result.value)
-                            : bindings instanceof Map        ? bindings.get(result.value)
-                            :                                  bindings?.[result.value];
+                let binding = applyHandler(bindings, result.value);
                 if (binding == null) {
                     result = await it.next(yield result.value);
                 } else {
@@ -76,9 +86,7 @@ export function bindSync(gen, bindings) {
         try {
             result = it.next();
             while (result.done === false) {
-                let binding = typeof bindings === 'function' ? bindings(result.value)
-                            : bindings instanceof Map        ? bindings.get(result.value)
-                            :                                  bindings?.[result.value];
+                let binding = applyHandler(bindings, result.value);
                 if (binding == null) {
                     result = it.next(yield result.value);
                 } else {

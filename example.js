@@ -14,23 +14,93 @@ function* greet(firstName, lastName) {
     return `Hello, ${name}`;
 }
 
-const greetJoe = bind(greet, effect => { 'first_name_missing', 'Joe' });
+const greetJoe = bind(greet, {
+    first_name_missing: 'Joe'
+});
 
-const greeting = await tryWithEffects(
+const greetPhil = bind(greet, new Map([[
+    'first_name_missing', 'Phil'
+]]));
 
-    greetJoe(null, 'Bob'),
+const greetSuzi = bind(greet, effect => {
+    if (effect === 'first_name_missing') return 'Suzi';
+});
 
-    function handler(effect) {
-        if (effect === 'first_name_missing') return rl.question('First Name: ');
-        if (effect === 'last_name_missing') return rl.question('Last Name: ');
-    },
-
-    function catcher(effect) {
-        console.error(error)
-    }
-
+console.log(
+    await tryWithEffects(
+        greet(null, 'AAA'),
+        // handlers as object with right-hand as value
+        {
+            first_name_missing: rl.question('First Name: '),
+            last_name_missing: rl.question('Last Name: ')
+        },
+        error => console.error(error)
+    )
 );
 
-console.log(greeting);
+console.log(
+    await tryWithEffects(
+        greet(null, 'BBB'),
+        // handlers as object with right-hand as function
+        {
+            first_name_missing: () => rl.question('First Name: '),
+            last_name_missing: () => rl.question('Last Name: ')
+        },
+        error => console.error(error)
+    )
+);
+
+
+console.log(
+    await tryWithEffects(
+        // handler with pre-bound resolution via object
+        greetJoe(null, 'CCC'),
+        {
+            first_name_missing: rl.question('First Name: '),
+            last_name_missing: rl.question('Last Name: ')
+        },
+        error => console.error(error)
+    )
+);
+
+console.log(
+    await tryWithEffects(
+        // handler with pre-bound resolution via Map
+        greetPhil(null, 'DDD'),
+        // handler as function
+        effect => {
+            if (effect === 'first_name_missing') return rl.question('First Name: ');
+            if (effect === 'last_name_missing') return rl.question('Last Name: ');
+        },
+        error => console.error(error)
+    )
+);
+
+console.log(
+    await tryWithEffects(
+        // handler with pre-bound resolution via function
+        greetSuzi(null, 'EEE'),
+        // handler as Map with right-hand as value
+        new Map([
+            [ 'first_name_missing', rl.question('First Name: ') ],
+            [ 'last_name_missing', rl.question('Last Name: ') ]
+        ]),
+        error => console.error(error)
+    )
+);
+
+console.log(
+    await tryWithEffects(
+        // handler with pre-bound resolution via function
+        greetSuzi(null, 'FFF'),
+        // handler as Map with right-hand as function
+        new Map([
+            [ 'first_name_missing', () => rl.question('First Name: ') ],
+            [ 'last_name_missing', () => rl.question('Last Name: ') ]
+        ]),
+        error => console.error(error)
+    )
+);
+
 
 rl.close();
