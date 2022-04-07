@@ -1,4 +1,4 @@
-import { tryWithEffects, bind } from './index.js';
+import { tryWithEffects, bind } from '../index.js';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'process';
 const rl = readline.createInterface({ input, output });
