@@ -1,5 +1,5 @@
 import test from 'ava';
-import { withEffects, withEffectsSync, always, alwaysSync } from './index.js';
+import { withEffects, withEffectsSync, bind, bindSync } from './index.js';
 
 test('#withEffects - happy path - basic example', async t => {
 
@@ -95,7 +95,7 @@ test('#withEffects - error handling - error thrown in handler', async t => {
 
 });
 
-test('#withEffects - happy path - basic example - always', async t => {
+test('#withEffects - happy path - basic example - bind', async t => {
 
     function* greet(firstName, lastName) {
         if (firstName == null) firstName = yield 'first_name_missing';
@@ -103,11 +103,9 @@ test('#withEffects - happy path - basic example - always', async t => {
         return `Hello, ${firstName} ${lastName}`;
     }
 
-    const greetWithToodle = always(
+    const greetWithToodle = bind(
         greet,
-        new Map([
-            ['first_name_missing', Promise.resolve('Toodle')]
-        ])
+        { 'first_name_missing': Promise.resolve('Toodle') }
     );
 
     t.is(await withEffects(
@@ -184,16 +182,16 @@ test('#withEffectsSync - happy path - effect delegation', t => {
     ), 'Hello, T. Jun');
 });
 
-test('#withEffectsSync - happy path - basic example - alwaysSync', async t => {
+test('#withEffectsSync - happy path - basic example - bindSync', async t => {
 
     function* greet(firstName, lastName) {
         if (firstName == null) firstName = yield 'first_name_missing';
         if (lastName == null) lastName = yield 'last_name_missing';
         return `Hello, ${firstName} ${lastName}`;
     }
-    const greetWithToodle = alwaysSync(
+    const greetWithToodle = bindSync(
         greet,
-        new Map([['first_name_missing', 'Toodle']])
+        { 'first_name_missing': 'Toodle' }
     );
 
     t.is(withEffectsSync(
