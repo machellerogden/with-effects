@@ -14,7 +14,7 @@ function* greet(firstName, lastName) {
     return `Hello, ${name}`;
 }
 
-const greetJoe = bind(greet, { 'first_name_missing', 'Joe' });
+const greetJoe = bind(greet, effect => ({ 'first_name_missing', 'Joe' })[effect]);
 
 const greeting = await tryWithEffects(
 

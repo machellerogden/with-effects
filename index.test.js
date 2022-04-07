@@ -95,7 +95,38 @@ test('#withEffects - error handling - error thrown in handler', async t => {
 
 });
 
-test('#withEffects - happy path - basic example - bind', async t => {
+test('#withEffects - happy path - basic example - bind as fn', async t => {
+
+    function* greet(firstName, lastName) {
+        if (firstName == null) firstName = yield 'first_name_missing';
+        if (lastName == null) lastName = yield 'last_name_missing';
+        return `Hello, ${firstName} ${lastName}`;
+    }
+
+    const greetWithToodle = bind(
+        greet,
+        effect => ({ 'first_name_missing': Promise.resolve('Toodle') })[effect]
+    );
+
+    t.is(await withEffects(
+        greetWithToodle(null, null),
+        effect => {
+            if (effect === 'first_name_missing') return Promise.resolve('Beebop');
+            if (effect === 'last_name_missing') return Promise.resolve('Deedoo');
+        }
+    ), 'Hello, Toodle Deedoo');
+
+    t.is(await withEffects(
+        greet(null, null),
+        effect => {
+            if (effect === 'first_name_missing') return Promise.resolve('Beebop');
+            if (effect === 'last_name_missing') return Promise.resolve('Deedoo');
+        }
+    ), 'Hello, Beebop Deedoo');
+
+});
+
+test('#withEffects - happy path - basic example - bind as obj', async t => {
 
     function* greet(firstName, lastName) {
         if (firstName == null) firstName = yield 'first_name_missing';
@@ -106,6 +137,37 @@ test('#withEffects - happy path - basic example - bind', async t => {
     const greetWithToodle = bind(
         greet,
         { 'first_name_missing': Promise.resolve('Toodle') }
+    );
+
+    t.is(await withEffects(
+        greetWithToodle(null, null),
+        effect => {
+            if (effect === 'first_name_missing') return Promise.resolve('Beebop');
+            if (effect === 'last_name_missing') return Promise.resolve('Deedoo');
+        }
+    ), 'Hello, Toodle Deedoo');
+
+    t.is(await withEffects(
+        greet(null, null),
+        effect => {
+            if (effect === 'first_name_missing') return Promise.resolve('Beebop');
+            if (effect === 'last_name_missing') return Promise.resolve('Deedoo');
+        }
+    ), 'Hello, Beebop Deedoo');
+
+});
+
+test('#withEffects - happy path - basic example - bind as map', async t => {
+
+    function* greet(firstName, lastName) {
+        if (firstName == null) firstName = yield 'first_name_missing';
+        if (lastName == null) lastName = yield 'last_name_missing';
+        return `Hello, ${firstName} ${lastName}`;
+    }
+
+    const greetWithToodle = bind(
+        greet,
+        new Map([[ 'first_name_missing', Promise.resolve('Toodle') ]])
     );
 
     t.is(await withEffects(
@@ -182,7 +244,29 @@ test('#withEffectsSync - happy path - effect delegation', t => {
     ), 'Hello, T. Jun');
 });
 
-test('#withEffectsSync - happy path - basic example - bindSync', async t => {
+test('#withEffectsSync - happy path - basic example - bindSync as fn', async t => {
+
+    function* greet(firstName, lastName) {
+        if (firstName == null) firstName = yield 'first_name_missing';
+        if (lastName == null) lastName = yield 'last_name_missing';
+        return `Hello, ${firstName} ${lastName}`;
+    }
+    const greetWithToodle = bindSync(
+        greet,
+        effect => ({ 'first_name_missing': 'Toodle' })[effect]
+    );
+
+    t.is(withEffectsSync(
+        greetWithToodle(null, null),
+        effect => {
+            if (effect === 'first_name_missing') return 'Beebop';
+            if (effect === 'last_name_missing') return 'Deedoo';
+        }
+    ), 'Hello, Toodle Deedoo');
+
+});
+
+test('#withEffectsSync - happy path - basic example - bindSync as obj', async t => {
 
     function* greet(firstName, lastName) {
         if (firstName == null) firstName = yield 'first_name_missing';
@@ -192,6 +276,28 @@ test('#withEffectsSync - happy path - basic example - bindSync', async t => {
     const greetWithToodle = bindSync(
         greet,
         { 'first_name_missing': 'Toodle' }
+    );
+
+    t.is(withEffectsSync(
+        greetWithToodle(null, null),
+        effect => {
+            if (effect === 'first_name_missing') return 'Beebop';
+            if (effect === 'last_name_missing') return 'Deedoo';
+        }
+    ), 'Hello, Toodle Deedoo');
+
+});
+
+test('#withEffectsSync - happy path - basic example - bindSync as map', async t => {
+
+    function* greet(firstName, lastName) {
+        if (firstName == null) firstName = yield 'first_name_missing';
+        if (lastName == null) lastName = yield 'last_name_missing';
+        return `Hello, ${firstName} ${lastName}`;
+    }
+    const greetWithToodle = bindSync(
+        greet,
+        new Map([[ 'first_name_missing', 'Toodle' ]])
     );
 
     t.is(withEffectsSync(

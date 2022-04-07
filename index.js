@@ -53,10 +53,13 @@ export function bind(gen, bindings) {
         try {
             result = await it.next();
             while (result.done === false) {
-                if (bindings?.[result.value] != null) {
-                    result = await it.next(await bindings[result.value]);
-                } else {
+                let binding = typeof bindings === 'function' ? bindings(result.value)
+                            : bindings instanceof Map        ? bindings.get(result.value)
+                            :                                  bindings?.[result.value];
+                if (binding == null) {
                     result = await it.next(yield result.value);
+                } else {
+                    result = await it.next(await binding);
                 }
             }
         } catch (e) {
@@ -73,10 +76,13 @@ export function bindSync(gen, bindings) {
         try {
             result = it.next();
             while (result.done === false) {
-                if (bindings?.[result.value] != null) {
-                    result = it.next(bindings[result.value]);
-                } else {
+                let binding = typeof bindings === 'function' ? bindings(result.value)
+                            : bindings instanceof Map        ? bindings.get(result.value)
+                            :                                  bindings?.[result.value];
+                if (binding == null) {
                     result = it.next(yield result.value);
+                } else {
+                    result = it.next(binding);
                 }
             }
         } catch (e) {
