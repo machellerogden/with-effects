@@ -27,6 +27,25 @@ test('#withEffects - happy path - basic example', async t => {
 
 });
 
+test('#withEffects - happy path - effect as array', async t => {
+
+    function* greet(firstName, lastName) {
+        if (firstName == null) firstName = yield [ 'first_name_missing', true ];
+        if (lastName == null) lastName = yield [ 'last_name_missing', false ];
+        return `Hello, ${firstName} ${lastName}`;
+    }
+
+    t.is(await withEffects(
+        greet(null, 'Voss'),
+        (effect, shout) => {
+            const transform = shout ? v => v.toUpperCase(v) : v => v;
+            if (effect === 'first_name_missing') return Promise.resolve(transform('Baba'));
+            if (effect === 'last_name_missing') return Promise.resolve(transform('Voss'));
+        }
+    ), 'Hello, BABA Voss');
+
+});
+
 test('#withEffects - happy path - effect delegation', async t => {
 
     function* formatName(firstName, lastName) {

@@ -1,6 +1,6 @@
 # with-effects
 
-> Simple wrapper for algebraic effects using generators.
+> Simple wrapper for algebraic effects using coroutines.
 
 
 ## Example:
@@ -29,3 +29,8 @@ const greeting = await withEffects(
 
 console.log(greeting);
 ```
+
+
+## Note on Effects
+
+Effects can be strings or arrays. If an effect is performed as an array it will be applied as arguments to its matching handler.

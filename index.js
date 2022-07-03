@@ -1,12 +1,13 @@
 'use strict';
 
 const applyHandler = (handler, value) => {
-    if (typeof handler === 'function') return handler(value);
+    const [ effect, ...args ] = Array.isArray(value) ? value : [ value ];
+    if (typeof handler === 'function') return handler(effect, ...args);
     const rh = handler instanceof Map
-        ? handler.get(value)
-        : handler?.[value];
+        ? handler.get(effect)
+        : handler?.[effect];
     return typeof rh === 'function'
-        ? rh(value)
+        ? rh(effect, ...args)
         : rh;
 }
 
