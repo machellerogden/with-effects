@@ -6,9 +6,10 @@ const applyHandler = (handler, value) => {
     const rh = handler instanceof Map
         ? handler.get(effect)
         : handler?.[effect];
-    return typeof rh === 'function'
-        ? rh(effect, ...args)
-        : rh;
+    return rh?.[Symbol.toStringTag] === 'AsyncGeneratorFunction'  ? withEffects(rh(effect, ...args), handler)
+         : rh?.[Symbol.toStringTag] === 'GeneratorFunction'       ? withEffectsSync(rh(effect, ...args), handler)
+         : typeof rh === 'function'                               ? rh(effect, ...args)
+         : rh;
 }
 
 export async function withEffects(it, handler) {
@@ -66,7 +67,7 @@ export function bind(gen, bindings) {
         try {
             result = await it.next();
             while (result.done === false) {
-                let binding = applyHandler(bindings, result.value);
+                let binding = await applyHandler(bindings, result.value);
                 if (binding == null) {
                     result = await it.next(yield result.value);
                 } else {
