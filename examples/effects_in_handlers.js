@@ -4,7 +4,7 @@ const result = await withEffects(
     async function* () {
         const a = 1 + 2;
         const b = yield [ 'add-numbers', a ];
-        return `result is ${a}`;
+        return `is ${b}`;
     }(),
     {
         'add-numbers': function* (_, a, b) {
@@ -12,7 +12,6 @@ const result = await withEffects(
             return a + b;
         },
         'get-number': () => {
-            console.log('get-number');
             return 3;
         }
     }
