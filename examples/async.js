@@ -1,6 +1,7 @@
 import { tryWithEffects, bind } from '../index.js';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'process';
+
 const rl = readline.createInterface({ input, output });
 
 function* formatName(firstName, lastName) {
@@ -31,8 +32,8 @@ console.log(
         greet(null, 'AAA'),
         // handlers as object with right-hand as value
         {
-            first_name_missing: rl.question('First Name: '),
-            last_name_missing: rl.question('Last Name: ')
+            first_name_missing: 'Bob',
+            last_name_missing: 'Smith'
         },
         error => console.error(error)
     )
@@ -101,6 +102,5 @@ console.log(
         error => console.error(error)
     )
 );
-
 
 rl.close();
