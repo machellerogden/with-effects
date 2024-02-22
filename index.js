@@ -1,17 +1,18 @@
 'use strict';
 
 const applyHandler = (handler, value) => {
-    const [ effect, ...args ] = Array.isArray(value) ? value : [ value ];
+    const [effect, ...args] = Array.isArray(value) ? value : [value];
     if (typeof handler === 'function') return handler(effect, ...args);
-    const rh = handler instanceof Map
-        ? handler.get(effect)
-        : handler?.[effect];
+    const rh = handler instanceof Map ? handler.get(effect) : handler?.[effect];
     const rht = rh?.[Symbol.toStringTag];
-    return rht === 'AsyncGeneratorFunction'  ? withEffects(rh(effect, ...args), handler)
-         : rht === 'GeneratorFunction'       ? withEffectsSync(rh(effect, ...args), handler)
-         : typeof rh === 'function'          ? rh(effect, ...args)
-         : rh;
-}
+    return rht === 'AsyncGeneratorFunction'
+        ? withEffects(rh(effect, ...args), handler)
+        : rht === 'GeneratorFunction'
+        ? withEffectsSync(rh(effect, ...args), handler)
+        : typeof rh === 'function'
+        ? rh(effect, ...args)
+        : rh;
+};
 
 export async function withEffects(it, handler) {
     let result;
@@ -30,7 +31,7 @@ export async function withEffects(it, handler) {
 export async function tryWithEffects(it, handler, catcher) {
     let result;
     try {
-        result = await withEffects(it, handler)
+        result = await withEffects(it, handler);
     } catch (error) {
         result = catcher(error);
     }
@@ -54,7 +55,7 @@ export function withEffectsSync(it, handler) {
 export function tryWithEffectsSync(it, handler, catcher) {
     let result;
     try {
-        result = withEffectsSync(it, handler)
+        result = withEffectsSync(it, handler);
     } catch (error) {
         result = catcher(error);
     }
@@ -104,3 +105,5 @@ export function bindSync(gen, bindings) {
     }
     return g;
 }
+
+export const fx = (...args) => args;
