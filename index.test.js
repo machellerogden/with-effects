@@ -366,3 +366,21 @@ test('#withEffectsSync - error handling - error thrown in handler', t => {
     ), { message: 'boom' });
 
 });
+
+test('#withEffects - error handling - error thrown in delegated async generator', async t => {
+
+    async function* getName() {
+        throw new Error('boom');
+    }
+
+    async function* greet() {
+        const name = yield* getName();
+        return `Hello, ${name}`;
+    }
+
+    await t.throwsAsync(async () => await withEffects(
+        greet(),
+        {}
+    ), { message: 'boom' });
+
+});
